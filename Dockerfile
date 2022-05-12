@@ -17,6 +17,9 @@ RUN apt-get --yes -qq install cmake
 RUN apt-get --yes -qq install cmake-curses-gui ## ccmake
 RUN apt-get --yes -qq install clang-tools-9
 RUN apt-get --yes -qq install vim
+RUN apt-get --yes -qq install libgl1
+RUN apt-get --yes -qq install libegl1-mesa
+RUN conda install -c conda-forge pyvista vtk pandas -y 
 
 ## 
 FROM notebook_setup AS notebook_execute
