@@ -1,0 +1,221 @@
+<!doctype html>
+<html>
+   <head>
+      <meta charset = "utf-8">
+      <title>BabylonJs - Basic Element-Creating Scene</title>
+      <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script> 
+      <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+      <style>
+         canvas {width: 100%; height: 200%;}
+      </style>
+   </head>
+
+   <body>
+      <canvas id = "renderCanvas"></canvas>
+      
+      <script src="fields.js"></script>
+      <script src="step000.js"></script>
+
+      <script type = "text/javascript">
+
+const rad2deg = rad => rad * 180.0 / Math.PI;
+const deg2rad = deg => deg * Math.PI / 180.0;
+
+var x = xFun();
+var y = yFun();
+var z = zFun();
+
+var ex = exFun();
+var ey = eyFun();
+var ez = ezFun();
+
+var x2D = xFun2D();
+var y2D = yFun2D();
+var z2D = zFun2D();
+
+var ex2D = exFun2D();
+var ey2D = eyFun2D();
+var ez2D = ezFun2D();
+
+var nparticles =  276;
+var ntimes = 499; 
+
+var Rad2Deg = function( quaternion )
+{
+    var euler_rad = quaternion.toEulerAngles().asArray();
+    var euler_deg = euler_rad.map(rad2deg);
+    return new BABYLON.Vector3().fromArray(euler_deg); 
+}
+
+function InitParticlesPosition(SPS) 
+{
+    var itime = 0; 
+
+    for (let i = 0; i < SPS.nbParticles; i++) 
+    {
+        const p = SPS.particles[i];
+        p.position.x = x2D[itime][i];
+        p.position.y = y2D[itime][i];
+        p.position.z = z2D[itime][i];
+
+        p.rotation.x = ex2D[itime][i]; 
+        p.rotation.y = ey2D[itime][i]; 
+        p.rotation.z = ez2D[itime][i];          
+    }
+};
+
+
+var GetRotation = function(p) 
+{                    
+    var scale = 0.01; 
+    //particle.rotation.y += scale * 6.28 * Math.random(); // Rotate around the vertical 
+    //particle.rotation += new BABYLON.Vector3(0,scale * 6.28 * Math.random(),0);    // :( 
+    //particle.rotate(new BABYLON.Vector3(1, 0 -1), Math.PI / 3, BABYLON.Space.WORLD); // :( 
+        
+    var itime = 0;  
+        p.rotation.x = ex2D[itime][p.id]; 
+        p.rotation.y = ey2D[itime][p.id]; 
+        p.rotation.z = ez2D[itime][p.id];    
+        //console.log(" ->", p.id, p.idx);
+}
+
+
+class GetParticlesSystem 
+{
+    _nmeshes = 0;
+    _k = 0; 
+
+    constructor(scene) 
+    {
+        this.SPS = new BABYLON.SolidParticleSystem("SPS", scene); 
+        console.log("[GetParticlesSystem] "); 
+
+        var k = 0;
+        this._k = k; 
+    }
+
+
+    AddSpheres(nmeshes)
+    {
+        console.assert(arguments.length, "undefined nmeshes!!");
+        
+        this._nmeshes += nmeshes;
+
+        const m = BABYLON.MeshBuilder.CreateSphere("s", {});
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+    }
+
+
+    AddCuboid(nmeshes)
+    {
+        console.assert(arguments.length, "undefined nmeshes!!");
+        
+        this._nmeshes += nmeshes;
+
+        const m = BABYLON.MeshBuilder.CreateBox("box", {height:4,width:2,depth:2});
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+    }
+
+
+    Create() // All the particles are displayed at the origin.
+    {
+        this.mesh = this.SPS.buildMesh(); // finally builds and displays the SPS mesh
+        console.log("[GetParticlesSystem] "); 
+    }
+
+
+    Initialize() // Initiate particles function
+    {
+        this.SPS.initParticles = () => 
+        {
+            InitParticlesPosition(this.SPS); 
+        }
+        this.SPS.initParticles();
+        this.SPS.setParticles();
+        console.log("[GetParticlesSystem] "); 
+    }
+
+    DrawOnEachRenderCycle(scene) 
+    {
+        this.SPS.updateParticle = (p) => 
+        {
+            var itime = 0;  
+            itime = this._k; 
+            p.rotation.x = ex2D[itime][p.id]; 
+            p.rotation.y = ey2D[itime][p.id]; 
+            p.rotation.z = ez2D[itime][p.id];    
+
+            p.position.x = x2D[itime][p.id];
+            p.position.y = y2D[itime][p.id];
+            p.position.z = z2D[itime][p.id];                
+        }        
+        console.log("[GetParticlesSystem] "); 
+
+        //scene.onAfterRenderObservable.add(() => {this.SPS.setParticles();})        
+        scene.onBeforeRenderObservable.add(() => 
+        {
+            this.SPS.setParticles();
+            console.log("Rendering:" + this._k); 
+            if(this._k < ntimes){this._k += 1;}
+            else {this._k = 0}; 
+            
+        })
+        
+        console.log("[GetParticlesSystem] "); 
+    }
+}
+
+        var GetCamera = function(scene, canvas) 
+        {
+            var c = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+            c.setPosition(new BABYLON.Vector3(0, 10, -50));
+            c.attachControl(canvas, true);   
+            return c; 
+        }   
+
+
+        var GetLight = function(scene) 
+        {    
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.85;
+            light.specular = new BABYLON.Color3(0.95, 0.95, 0.81);
+            return light; 
+        }
+
+
+        var AddGround = function()  
+        {
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500});
+            ground.position.y = -10;            
+        }
+
+ 
+         var Canvas = document.getElementById("renderCanvas");
+         var Engine = new BABYLON.Engine(Canvas, true);
+         var Scene = new BABYLON.Scene(Engine);
+
+         var Light = GetLight(Scene); 
+         var Camera = GetCamera(Scene, Canvas); 
+
+         //Scene = createScene(Scene, Canvas);
+         Scene.clearColor = BABYLON.Color3.Black;
+
+         var Ps1 = new GetParticlesSystem(Scene);
+         Ps1.AddCuboid(nparticles);
+         Ps1.Create();
+         Ps1.Initialize(); 
+         Ps1.DrawOnEachRenderCycle(Scene); 
+
+         //AddGround(); 
+         
+         Engine.runRenderLoop( function(){Scene.render();} );
+
+      </script>
+   </body>
+</html>
