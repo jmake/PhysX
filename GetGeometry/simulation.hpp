@@ -1,5 +1,11 @@
+// simulation.hpp
+#ifndef SIMULATION_H
+#define SIMULATION_H
+
 #include <iostream>
 #include <vector>
+#include <map>
+#include <limits>
 
 #include <PxConfig.h>
 #include <PxPhysicsAPI.h>
@@ -13,14 +19,10 @@
 #include <foundation/PxMat33.h>
 #include <extensions/PxSimpleFactory.h>
 
-#include "extract_geometry.hpp"
-
-#define PVD_HOST "127.0.0.1"  //Set this to the IP address of the system running the PhysX Visual Debugger that you want to connect to.
-#define PX_RELEASE(x)  if(x)  { x->release(); x = NULL;  }
-
+#define PVD_HOST "127.0.0.1" 
+#define PX_RELEASE(x)  if(x){x->release(); x = NULL;}
 
 using namespace physx;
-
 
 PxPhysics*  gPhysics  = NULL;
 PxMaterial* gMaterial  = NULL;
@@ -33,6 +35,7 @@ PxReal stackZ = 10.0f;
 PxFoundation*  gFoundation = NULL;
 PxDefaultAllocator    gAllocator;
 PxDefaultErrorCallback  gErrorCallback;
+
 
 PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity=PxVec3(0))
 {
@@ -59,6 +62,20 @@ void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
     }
   }
   shape->release();
+}
+
+
+void cleanupPhysics()
+{
+  PX_RELEASE(gScene);
+  PX_RELEASE(gDispatcher);
+  PX_RELEASE(gPhysics);
+  if(gPvd)
+  {
+    PxPvdTransport* transport = gPvd->getTransport();
+    gPvd->release();  gPvd = NULL;
+    PX_RELEASE(transport);
+  }
 }
 
 
@@ -99,24 +116,17 @@ void initPhysics(bool interactive)
 }
 
 
-/*
-virtual PxU32 
-PxScene::getActors(  
-  PxActorTypeFlags   types,
-  PxActor **   userBuffer,
-  PxU32   bufferSize,
-  PxU32   startIndex = 0   
-)  
-*/
-void stepPhysics(bool /*interactive*/, int istep)
+int stepPhysics(
+                 int nstep, 
+                 int istep,
+                 PXFIELDS &PxFields 
+		            ) 	
 {
   gScene->simulate(1.0f/60.0f);
   gScene->fetchResults(true);
 
   PxU32 nStatics = gScene->getNbActors(PxActorTypeFlag::eRIGID_STATIC); 
   PxU32 nDynamics = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);  
-//  std::cout<<"nStatics nDynamics : "<< nStatics <<" "<< nDynamics <<"\n";
-
 
   PxActor **userBuffer = NULL;  
   PxU32   bufferSize = -1; 
@@ -124,13 +134,24 @@ void stepPhysics(bool /*interactive*/, int istep)
   std::vector<PxActor*> Statics(nStatics); 
   std::vector<PxActor*> Dynamics(nDynamics); 
 
-
   nDynamics = gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, Dynamics.data(), Dynamics.size() ); 
   nStatics = gScene->getActors(PxActorTypeFlag::eRIGID_STATIC, Statics.data(), Dynamics.size() );
-//  std::cout<<"nStatics nDynamics : "<< nStatics <<" "<< nDynamics <<"\n";
 
-  //  eRIGID_STATIC:  1 << 0 = 0000 0001
-  //  eRIGID_DYNAMIC: 1 << 1 = 0000 0010
+  if(PxFields.size() == 0) 
+  {
+    VEC1D_INIT(PxFields["i"],nDynamics); 
+    VEC1D_INIT(PxFields["x"],nDynamics); 
+    VEC1D_INIT(PxFields["y"],nDynamics); 
+    VEC1D_INIT(PxFields["z"],nDynamics); 
+    VEC1D_INIT(PxFields["qx"],nDynamics); 
+    VEC1D_INIT(PxFields["qy"],nDynamics); 
+    VEC1D_INIT(PxFields["qz"],nDynamics); 
+    VEC1D_INIT(PxFields["qw"],nDynamics); 
+    VEC1D_INIT(PxFields["ax"],nDynamics); 
+    VEC1D_INIT(PxFields["ay"],nDynamics); 
+    VEC1D_INIT(PxFields["az"],nDynamics); 
+    VEC1D_INIT(PxFields["an"],nDynamics);   
+  }
 
   for(int i=0; i < nDynamics; i++)
   {
@@ -145,42 +166,30 @@ void stepPhysics(bool /*interactive*/, int istep)
     PxVec3   p = com.p; 
     PxQuat   q = com.q;
 
-    //q.toRadiansAndUnitAxis(float& angle, PxVec3& axis); 
+    float angle = 0.0; 
+    PxVec3 axis;
+    q.toRadiansAndUnitAxis(angle,axis);
 
-    std::cout<< istep <<" "<< i 
-	     <<" "<< p.x <<" "<< p.y <<" "<< p.z 
-             <<" "<< q.x <<" "<< q.y <<" "<< q.z <<" "<< q.w
-             <<" "<< vel.x <<" "<< vel.y <<" "<< vel.z 
-	     <<"\n";
+    PxFields["i"][i] = i;
+    PxFields["x"][i] = p.x;
+    PxFields["y"][i] = p.y;
+    PxFields["z"][i] = p.z;
 
-    //CreateGeometryFromPhysxGeometry(PxBoxGeometry(2.0f,2.0f,2.0f), b->getGlobalPose());  
+    PxFields["qx"][i] = q.x;
+    PxFields["qy"][i] = q.y;
+    PxFields["qz"][i] = q.z;
+    PxFields["qw"][i] = q.w;
+
+    PxFields["ax"][i] = axis.x;
+    PxFields["ay"][i] = axis.y;
+    PxFields["az"][i] = axis.z;
+    PxFields["an"][i] = angle;
   }
-
-  for(int i=0; i < nStatics; i++)
-  {
-    //std::cout<< i <<" "<< Statics[i]->getType() <<" \n";
-  }  
 
   Statics.clear();
   Dynamics.clear(); 
+
+  return nDynamics; 
 }
 
-
-void cleanupPhysics(bool /*interactive*/)
-{
-  PX_RELEASE(gScene);
-  PX_RELEASE(gDispatcher);
-  PX_RELEASE(gPhysics);
-  if(gPvd)
-  {
-    PxPvdTransport* transport = gPvd->getTransport();
-    gPvd->release();  gPvd = NULL;
-    PX_RELEASE(transport);
-  }
-//PX_RELEASE(gFoundation);
-  
-//  printf("#SnippetHelloWorld done.\n");
-}
-
-
-//#include "extract_geometry.hpp"
+#endif /* SIMULATION_H */
