@@ -8,8 +8,8 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed -ldl -pthread ")
 
 #set(PHYSX_ROOT_DIR "/DUMMY/physx")
-set(PHYSX_ROOT_DIR "/home/jovyan/work/PHYSX41/physx") 
-
+#set(PHYSX_ROOT_DIR "/home/jovyan/work/PHYSX41/physx") 
+set(PHYSX_ROOT_DIR "/home/jovyan/work/PHYSX41/physx")
 
 ## 1.0. HEADERS 
 include_directories("${PHYSX_ROOT_DIR}/install/linux/PhysX/include")    #  
@@ -36,7 +36,7 @@ endforeach()
 
 
 ## 3.0. EXECUTABLE 
-set(SRCS "../simplest.cpp") 
+set(SRCS "../main.cpp") 
 add_executable(simplest.x ${SRCS})
 
 target_link_libraries(simplest.x ${LIBRARIES})
@@ -45,3 +45,4 @@ target_link_libraries(simplest.x ${LIBRARIES})
 ## 4.0. TESTING  
 enable_testing()
 add_test(NAME simplest COMMAND simplest.x)
+
