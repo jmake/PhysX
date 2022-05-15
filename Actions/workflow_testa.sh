@@ -45,6 +45,7 @@ DOCKER_RUN_DETACHED()
         --detach \
         --rm \
         --name ${CONTAINER_NAME} \
+    --volume ${PWD}:/home \
         --workdir ${DOCKER_WORDIR} \
         --interactive ${IMAGE_NAME} \
         ${TOBEEXECUTED}
