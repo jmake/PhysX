@@ -94,8 +94,8 @@ DOCKER_BUILD
 
 DOCKER_RUN_DETACHED
 
-#TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
-#DOCKER_EXEC
+TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
+DOCKER_EXEC
 
 #TOBEEXECUTED="bash Examples/Babylonjs/RUNNER.sh"_EXEC
 
