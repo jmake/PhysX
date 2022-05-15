@@ -1,7 +1,7 @@
 DOCKER_BUILD()
 {
   docker build . \
-    --file Dockerfile.ci \
+    --file ../Dockerfile \
     --tag $IMAGE_NAME  \
     > /dev/null 
 }
@@ -37,7 +37,7 @@ DOCKER_RUN
 TOBEEXECUTED="pwd"
 DOCKER_RUN
 
-TOBEEXECUTED="bash GET_NVCC.sh"
+TOBEEXECUTED="bash RUNNER.sh"
 DOCKER_RUN
 
 #
