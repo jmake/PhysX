@@ -26,8 +26,8 @@ DOCKER_RUN()
 }
 
 
-CONTAINER_NAME=nvcc_container
-IMAGE_NAME=nvcc_image 
+CONTAINER_NAME=physx_container
+IMAGE_NAME=physx_image 
 
 DOCKER_BUILD 
 
@@ -37,7 +37,7 @@ DOCKER_RUN
 TOBEEXECUTED="pwd"
 DOCKER_RUN
 
-TOBEEXECUTED="bash GetGeometry/RUNNER.sh"
+TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
 DOCKER_RUN
 
 #
