@@ -26,10 +26,10 @@ jobs:
         
         echo "[WORFLOWS] Repository is:'${{ github.workspace }}' "
         echo "[WORFLOWS] ls -la "
-        ls -la ${{ github.workspace }} 
-        
+ 
         bash ./Actions/workflow_testa.sh
         
+        ls -la ${{ github.workspace }}        
         echo "[WORFLOWS] DONE!!"
         
 
@@ -38,7 +38,7 @@ jobs:
       with:
         name: FromContainer
         if-no-files-found: error
-        path: /home/Examples/Babylonjs/BUILD/babylon.html
+        path: ./babylon.html
         retention-days: 1
         
         
