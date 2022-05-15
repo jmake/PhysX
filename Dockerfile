@@ -20,6 +20,7 @@ FROM jupyter/base-notebook:latest AS notebook_setup
 FROM notebook_setup AS notebook_execute 
 ENV IPYNB_FILE="Actions/simplest.ipynb"
 ENV NB_USER="jovyan" 
+USER root 
 WORKDIR /home/jovyan/work 
 COPY ${IPYNB_FILE} /home/jovyan/work 
 RUN chown -R ${NB_USER} /home/jovyan/work
