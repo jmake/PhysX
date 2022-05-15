@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUERIRED ON)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed -ldl -pthread ")
-set(PHYSX_ROOT_DIR "/DUMMY/physx")
+
+set(PHYSX_ROOT_DIR "/home/jovyan/work/PHYSX41/physx")
 
 
 ## 1.0. HEADERS 
@@ -35,11 +36,11 @@ endforeach()
 
 ## 3.0. EXECUTABLE 
 set(SRCS "../simplest.cpp")
-add_executable(simplest.x ${SRCS})
-
-target_link_libraries(simplest.x ${LIBRARIES})
+set(EXECUTABLE "snippetHelloWorld.x")
+add_executable(${EXECUTABLE} ${SRCS})
+target_link_libraries(${EXECUTABLE} ${LIBRARIES})
 
 
 ## 4.0. TESTING  
 enable_testing()
-add_test(NAME simplest COMMAND simplest.x)
+add_test(NAME ${EXECUTABLE} COMMAND ${EXECUTABLE})
