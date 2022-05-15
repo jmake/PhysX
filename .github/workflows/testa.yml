@@ -28,4 +28,4 @@ jobs:
         echo "[WORFLOWS] ls -la "
         ls -la ${{ github.workspace }} 
         
-        bash PhysX/Actions/workflow_testa.sh
+        bash ./Actions/workflow_testa.sh
