@@ -26,12 +26,11 @@ SIMULATION_RUN()
 
 VISUALIZATION_RUN()
 {
-  /home/Examples/Babylonjs/BUILD/snippetHelloWorld.x 200 
-  
+  /home/Examples/Babylonjs/BUILD/snippetHelloWorld.x 200   
+  python3 /home/Examples/Babylonjs/physx2babylonjs.py
+
   ls 
   pwd 
-  
-  python3 /home/Examples/Babylonjs/physx2babylonjs.py
 }
 
 
