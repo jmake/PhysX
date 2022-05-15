@@ -16,7 +16,7 @@ RUN apt-get --yes -qq install cmake
 #RUN apt-get --yes -qq install cmake-curses-gui ## ccmake
 RUN apt-get --yes -qq install clang-tools-9
 RUN apt-get --yes -qq install vim  
-
+RUN apt-get --yes -qq install git
 
 FROM notebook_setup AS notebook_execute 
 ENV IPYNB_FILE="simplest.ipynb"
