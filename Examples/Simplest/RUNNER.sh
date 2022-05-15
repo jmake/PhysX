@@ -12,7 +12,7 @@ CHECKING()
 
 SIMULATION_RUN() 
 {
-  cd /home/jovyan/work/PhysX/Examples/Simplest
+  cd /home/jovyan/work/PhysX/Simplest
 
   mkdir BUILD
   cd BUILD
