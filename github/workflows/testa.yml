@@ -18,5 +18,14 @@ jobs:
       if: success()
               
       run: | 
+
+        echo "[WORFLOWS] I am here:'${PWD}' "
+        echo "[WORFLOWS] ls -la"
+        ls -la ${PWD}
+        echo "[WORFLOWS] "
         
-        bash Actions/workflow_testa.sh
+        echo "[WORFLOWS] Repository is:'${{ github.workspace }}' "
+        echo "[WORFLOWS] ls -la "
+        ls -la ${{ github.workspace }} 
+        
+        bash PhysX/Actions/workflow_testa.sh
