@@ -7,8 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUERIRED ON)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed -ldl -pthread ")
 
-#set(PHYSX_ROOT_DIR "/home/jovyan/work/PHYSX41/physx")
-set(PHYSX_ROOT_DIR "/DUMMY/physx")
+set(PHYSX_ROOT_DIR "/home/jovyan/work/physx/")
 
 ## 1.0. HEADERS 
 include_directories("${PHYSX_ROOT_DIR}/install/linux/PhysX/include")    #  
