@@ -5,14 +5,14 @@ CHECKING()
   ls -la /DUMMY/physx/install/linux/PhysX/bin/linux.clang/release/
   
   echo "[DOCKER] INCLUDES:"
-  ls /DUMMY/physx/install/linux/PhysX/include/
-  ls /DUMMY/physx/install/linux/PxShared/include/foundation/
+  ls /DUMMY/physx/install/linux/PhysX/include/PxPhysicsAPI.h
+  ls /DUMMY/physx/install/linux/PxShared/include/foundation/Px.h
 }
 
 
 SIMULATION_RUN() 
 {
-  cd /Physx/Examples/Simplest
+  cd /home/Examples/Simplest
 
   mkdir BUILD
   cd BUILD
