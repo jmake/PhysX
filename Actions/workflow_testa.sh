@@ -24,7 +24,7 @@ DOCKER_BUILD()
 {
   echo "[DOCKER_BUILD] ..."
   
-  DOCKERFILE="Dockerfile"
+  DOCKERFILE="./Actions/Dockerfile.physx"
   
   docker build . \
     --file ${DOCKERFILE} \
