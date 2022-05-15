@@ -29,3 +29,16 @@ jobs:
         ls -la ${{ github.workspace }} 
         
         bash ./Actions/workflow_testa.sh
+        
+        echo "[WORFLOWS] DONE!!"
+        
+
+    - name: Saving artifacts ...
+      uses: actions/upload-artifact@v2
+      with:
+        name: FromContainer
+        if-no-files-found: error
+        path: /home/Examples/Babylonjs/BUILD/babylon.html
+        retention-days: 1
+        
+        
