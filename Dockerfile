@@ -7,8 +7,8 @@ ENV NB_USER="jovyan"
 
 USER root 
 WORKDIR /home/jovyan/work 
-#COPY ${IPYNB_FILE} /home/jovyan/work 
-COPY * /home/jovyan/work/PhysX/
+COPY ${IPYNB_FILE} /home/jovyan/work 
+COPY Examples/ /home/jovyan/work/PhysX/
 RUN ls -la /home/jovyan/work/PhysX/
 RUN chown -R ${NB_USER} /home/jovyan/work
 
