@@ -83,6 +83,16 @@ DOCKER_COPY_TO_WORDIR()
 }
 
 
+
+DOCKER_COPY_FROM_CONTAINER()
+{
+  echo "[DOCKER_COPY] ..."
+  
+  docker cp ${CONTAINER_NAME}:/home/Examples/Babylonjs/BUILD/babylon.html ./
+  
+  echo "[DOCKER_COPY] DONE!" 
+}
+
 DOCKER_STOP() 
 { 
   #echo "[DOCKER_STOP]" 
@@ -120,6 +130,8 @@ DOCKER_EXEC
 TOBEEXECUTED="bash Examples/Babylonjs/RUNNER.sh"
 DOCKER_EXEC
 
+
+DOCKER_COPY_FROM_CONTAINER
 
 ## 
 #TOBEEXECUTED="bash RUNNER.sh"
