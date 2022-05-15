@@ -23,6 +23,15 @@ SIMULATION_RUN()
   ctest
 }
 
+
+VISUALIZATION_RUN()
+{
+  /home/Examples/Babylonjs/BUILD/snippetHelloWorld.x 200 
+  python --version 
+  python3 --version 
+}
+
+
 echo "[DOCKER] ls"
 ls
 
@@ -33,3 +42,4 @@ echo "[DOCKER] ..."
 
 CHECKING
 SIMULATION_RUN
+VISUALIZATION_RUN
