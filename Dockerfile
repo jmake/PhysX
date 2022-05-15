@@ -2,7 +2,7 @@ FROM jmake/mybinder:1652652023 AS notebook_setup
 
 ## Just here to be able to make modifications
 FROM notebook_setup AS notebook_execute 
-ENV IPYNB_FILE="PhysX/simplest.ipynb"
+ENV IPYNB_FILE="simplest.ipynb"
 ENV NB_USER="jovyan" 
 
 USER root 
