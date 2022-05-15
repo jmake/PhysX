@@ -4,6 +4,7 @@ FROM jmake/mybinder:1652652023 AS notebook_setup
 FROM notebook_setup AS notebook_execute 
 ENV IPYNB_FILE="simplest.ipynb"
 ENV NB_USER="jovyan" 
+RUN ls -la  
 
 USER root 
 WORKDIR /home/jovyan/work 
