@@ -98,6 +98,8 @@ DOCKER_STOP()
 ##
 #DVOLUME=$4        # github.workspace   
 
+DOCKER_WORDIR=/home/
+
 ## Docker ... 
 CONTAINER_NAME=mybinder_container
 IMAGE_NAME=mybinder_image
