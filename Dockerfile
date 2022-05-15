@@ -1,4 +1,4 @@
-FROM jmake/mybinder:1652652023 AS notebook_setup 
+FROM jmake/mybinder:last AS notebook_setup 
 
 ## Just here to be able to make modifications
 FROM notebook_setup AS notebook_execute 
