@@ -2,8 +2,8 @@ DOCKER_BUILD()
 {
   docker build . \
     --file Dockerfile \
-    --tag $IMAGE_NAME  \
-    > /dev/null 
+    --tag $IMAGE_NAME  
+   
 }
 
 
@@ -57,7 +57,8 @@ DOCKER_RUN_DETACHED()
         --interactive ${IMAGE_NAME} \
         ${TOBEEXECUTED}
   )
-  
+
+  docker ps -a
   echo "[DOCKER_RUN_DETACHED] DONE!"  
 }
 
@@ -93,13 +94,12 @@ DOCKER_BUILD
 
 DOCKER_RUN_DETACHED
 
-TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
-DOCKER_EXEC
+#TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
+#DOCKER_EXEC
 
-TOBEEXECUTED="bash Examples/Babylonjs/RUNNER.sh"
-DOCKER_EXEC
+#TOBEEXECUTED="bash Examples/Babylonjs/RUNNER.sh"_EXEC
 
-DOCKER_COPY_FROM_CONTAINER
+#DOCKER_COPY_FROM_CONTAINER
 DOCKER_STOP
 
 #
