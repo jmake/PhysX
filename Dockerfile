@@ -2,12 +2,12 @@ FROM jmake/mybinder:1652652023 AS notebook_setup
 
 ## Just here to be able to make modifications
 FROM notebook_setup AS notebook_execute 
-ENV IPYNB_FILE="Examples/simplest.ipynb"
+ENV IPYNB_FILE="simplest.ipynb"
 ENV NB_USER="jovyan" 
 
 USER root 
 WORKDIR /home/jovyan/work 
-#COPY ${IPYNB_FILE} /home/jovyan/work 
+COPY ${IPYNB_FILE} /home/jovyan/work 
 COPY Examples/ /home/jovyan/work/PhysX/
 RUN ls -la /home/jovyan/work/PhysX/
 RUN chown -R ${NB_USER} /home/jovyan/work
