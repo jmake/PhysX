@@ -1,7 +1,7 @@
 DOCKER_BUILD()
 {
   docker build . \
-    --file ../Dockerfile \
+    --file Dockerfile \
     --tag $IMAGE_NAME  \
     > /dev/null 
 }
