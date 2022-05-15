@@ -1,0 +1,323 @@
+<!doctype html>
+<html>
+  <head>
+   <meta charset = "utf-8">
+   <title>BabylonJs - Basic Element-Creating Scene</title>
+
+   <!-- Why these lines doesnt work from the notebook ??-->
+   <!--script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script> 
+   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> 
+   <script src="fields_new.js" type="text/javascript"></script-->
+
+   <script src="https://cdn.babylonjs.com/babylon.js"></script>
+   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+   <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+
+   <style>
+      html,body 
+      {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #renderCanvas
+      {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+   </style>
+  </head>
+
+  <body>
+    <canvas id = "renderCanvas"></canvas>
+
+    <script type="text/javascript">
+
+// fields.js 
+fieldsJS 
+// fields.js 
+
+    var x2D = xFun2D();
+    var y2D = yFun2D();
+    var z2D = zFun2D();
+
+    var qx2D = qxFun2D(); 
+    var qy2D = qyFun2D(); 
+    var qz2D = qzFun2D(); 
+    var qw2D = qwFun2D(); 
+
+    var nparticles = nparticlesFunc();
+    var ntimes = ntimesFunc(); 
+
+    const rad2deg = rad => rad * 180.0 / Math.PI;
+    const deg2rad = deg => deg * Math.PI / 180.0;
+
+
+    var Rad2Deg = function( quaternion )
+    {
+      var euler_rad = quaternion.toEulerAngles().asArray();
+      var euler_deg = euler_rad.map(rad2deg);
+      return new BABYLON.Vector3().fromArray(euler_deg); 
+    }
+
+
+    function InitParticlesPosition(SPS) 
+    {
+      var itime = 0; 
+
+      console.assert(itime < ntimes, "itime < ntimes"); 
+      for (let i = 0; i < SPS.nbParticles; i++) 
+      {
+        const p = SPS.particles[i];
+        p.position.x = x2D[itime][i];
+        p.position.y = y2D[itime][i];
+        p.position.z = z2D[itime][i];
+
+        var qx = qx2D[itime][i];
+        var qy = qy2D[itime][i];
+        var qz = qz2D[itime][i];
+        var qw = qw2D[itime][i];
+
+        var q = BABYLON.Quaternion.FromArray([qx,qy,qz,qw]); 
+        var e = q.toEulerAngles();
+
+        p.rotation.x = e.x
+        p.rotation.y = e.y
+        p.rotation.z = e.z
+      }
+    };
+
+
+    class GetParticlesSystem 
+    {
+      _nmeshes = 0;
+      _k = 0; 
+
+      constructor(scene) 
+      {
+        this.SPS = new BABYLON.SolidParticleSystem("SPS", 
+                              scene, 
+                              {useModelMaterial:true}, //, isPickable:true}, 
+                              ); 
+        console.log("[GetParticlesSystem] "); 
+
+        this.scene = scene; 
+        this._k = 0; 
+      }
+
+
+      AddSpheres(nmeshes)
+      {
+        console.assert(arguments.length, "undefined nmeshes!!");
+        
+        this._nmeshes += nmeshes;
+
+        const m = BABYLON.MeshBuilder.CreateSphere("s", {});
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+      }
+
+
+      AddCuboid(nmeshes, shadow)
+      {
+        console.assert(arguments.length, "undefined nmeshes!!");        
+        this._nmeshes += nmeshes;
+
+        // Cube 
+        var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
+        myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        myMaterial.specularColor = new BABYLON.Color3(0, 1, 0);
+        //myMaterial.emissiveColor = new BABYLON.Color3(1, 0, 0);
+        //myMaterial.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+        const m = BABYLON.MeshBuilder.CreateBox("box", {height:4,width:2,depth:2});
+        m.material = myMaterial; 
+
+        shadow.addShadowCaster(m); // does not work
+
+        // Added 
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+      }
+
+
+      Create() // All the particles are displayed at the origin.
+      {
+        this.mesh = this.SPS.buildMesh(); // finally builds and displays the SPS mesh
+        console.log("[GetParticlesSystem] "); 
+      }
+
+
+      Initialize() // Initiate particles function
+      {
+        this.SPS.initParticles = () => 
+        {
+          InitParticlesPosition(this.SPS); 
+        }
+        this.SPS.initParticles();
+        this.SPS.setParticles();
+        console.log("[GetParticlesSystem] "); 
+      }
+
+      DrawOnEachRenderCycle() 
+      {
+        var itime = -1;
+        this.SPS.updateParticle = (p) => 
+        {
+          itime = this._k; 
+          console.assert(itime < ntimes, "itime < ntimes"); 
+
+          var qx = qx2D[itime][p.id];
+          var qy = qy2D[itime][p.id];
+          var qz = qz2D[itime][p.id];
+          var qw = qw2D[itime][p.id];
+
+          var q = BABYLON.Quaternion.FromArray([qx,qy,qz,qw]); 
+          var e = q.toEulerAngles();
+
+          p.rotation.x = e.x
+          p.rotation.y = e.y
+          p.rotation.z = e.z
+
+          p.position.x = x2D[itime][p.id];
+          p.position.y = y2D[itime][p.id];
+          p.position.z = z2D[itime][p.id];           
+        }    
+        console.log("[GetParticlesSystem] "); 
+
+        this.scene.onBeforeRenderObservable.add(() => 
+        {
+          this.SPS.setParticles();
+          if(this._k < ntimes-1){this._k += 1;}
+          else {this._k = 0};              
+          //console.log("Rendering:" + this._k); 
+        })
+        
+        console.log("[GetParticlesSystem] "); 
+      }
+
+    }
+
+
+    var GetCamera = function(scene, canvas) 
+    {
+      var pos1 = new BABYLON.Vector3(100,50,100);
+      var view1 = new BABYLON.Vector3(0,25,0); 
+
+      var c = new BABYLON.ArcRotateCamera("camera1",0,0,0, view1, scene);
+      c.setPosition(pos1);
+      c.attachControl(canvas, true); // Controled by mouse movement;
+      return c; 
+    } 
+
+
+    var GetCameraB = function(scene, canvas) 
+    {
+      var fpsCamera = GetCamera(scene, canvas); 
+      fpsCamera.viewport = new BABYLON.Viewport(0, 0, 1, 1);
+      scene.activeCameras.push(fpsCamera);
+      
+      var camera2 = new BABYLON.ArcRotateCamera("camera2", 0, 0, 0, new BABYLON.Vector3(0,25,0), scene);
+      camera2.setPosition(new BABYLON.Vector3(100,50,100));
+      camera2.viewport = new BABYLON.Viewport(0.8,0.8,0.2,0.2);
+      scene.activeCameras.push(camera2);
+    }  
+
+
+    var GetLight = function(scene) 
+    {  
+      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+      light.intensity = 0.85;
+      light.specular = new BABYLON.Color3(0.95, 0.95, 0.81);
+      return light; 
+    }
+    
+
+    var GetLightB = function(scene) 
+    {  
+      //var light = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(-40, 40, -40), new BABYLON.Vector3(1, -1, 1), Math.PI / 5, 30, Scene);
+      var light = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0,1,0), scene);
+      light.intensity = 2;
+      light.specular = new BABYLON.Color3(0.95, 0.95, 0.81);
+      return light; 
+    }
+
+
+    var GetGround = function() 
+    {
+      var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
+      myMaterial.diffuseColor = new BABYLON.Color3(0,0,0.1);
+      //myMaterial.specularColor = new BABYLON.Color3(0,0,1);
+      myMaterial.emissiveColor = new BABYLON.Color3(0.1,0.1,0.1);
+      //myMaterial.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500});
+      ground.material = myMaterial; 
+      ground.position.y = 0.0;
+      ground.receiveShadows = true;
+    }
+
+
+    var GetSimplestEngine = function(canvas) 
+    { 
+      return new BABYLON.Engine(canvas, true);
+    }
+
+
+    var GetDefaultEngine = function(canvas) 
+    { 
+      return new BABYLON.Engine(canvas, 
+                   true, 
+                   {preserveDrawingBuffer:true,stencil:true,disableWebGL2Support:false}
+                   ); 
+    };
+
+
+    var GetShadows = function(light)
+    {
+      var shadowGenerator = new BABYLON.ShadowGenerator(3072, light);
+      shadowGenerator.usePercentageCloserFiltering = true;
+      return shadowGenerator; 
+    }
+
+     var Canvas = document.getElementById("renderCanvas");
+     var Engine = GetDefaultEngine(Canvas); 
+     var Scene = new BABYLON.Scene(Engine);
+
+     var Light = GetLight(Scene); 
+     var Shadow = GetShadows( GetLightB(Scene) ); 
+     //var Camera = GetCamera(Scene, Canvas); 
+     GetCameraB(Scene, Canvas); 
+
+
+     Scene.clearColor = BABYLON.Color3.Black;
+
+     var Ps1 = new GetParticlesSystem(Scene);
+     Ps1.AddCuboid(nparticles,Shadow);
+     Ps1.Create();
+     Ps1.Initialize(); 
+     Ps1.DrawOnEachRenderCycle(); 
+
+     GetGround(); 
+     Scene.shadowsEnabled = true;
+
+     deltaTime = Engine.getDeltaTime();
+
+    if (BABYLON.VideoRecorder.IsSupported(Engine)) 
+    {
+     var recorder = new BABYLON.VideoRecorder(Engine);
+     recorder.startRecording(); 
+    }
+
+    Engine.runRenderLoop( function(){Scene.render();} );
+   </script>
+  </body>
+</html>
