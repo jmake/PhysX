@@ -1,15 +1,16 @@
 
 CHECKING()
 {
-  ls -la physx/install/linux/PhysX/bin/linux.clang/release/
-  ls physx/install/linux/PhysX/include/
-  ls physx/install/linux/PxShared/include/foundation/
+
+  ls -la /DUMMY/physx/install/linux/PhysX/bin/linux.clang/release/
+  ls /DUMMY/physx/install/linux/PhysX/include/
+  ls /DUMMY/physx/install/linux/PxShared/include/foundation/
 }
 
 
 SIMULATION_RUN() 
 {
-  cd physx/Examples/Simplest
+  cd /DUMMY/physx/Examples/Simplest
 
   mkdir BUILD
   cd BUILD
