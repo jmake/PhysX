@@ -11,7 +11,7 @@ CHECKING()
 
 SIMULATION_RUN() 
 {
-  cd /home/Examples/Simplest
+  cd /home/Examples/Babylonjs/
 
   mkdir BUILD
   cd BUILD
