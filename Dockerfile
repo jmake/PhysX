@@ -27,7 +27,7 @@ WORKDIR /home/jovyan/work
 COPY ${IPYNB_FILE} /home/jovyan/work 
 #RUN chown -R ${NB_USER} /home/jovyan/work
 #USER ${NB_USER}
-RUN jupyter nbconvert --execute --clear-output ${IPYNB_FILE} 
+#RUN jupyter nbconvert --execute --clear-output ${IPYNB_FILE} 
 
 ##
 ##FROM jmake/mybinder:1652615015 AS PHYSICS 
