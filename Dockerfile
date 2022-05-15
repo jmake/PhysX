@@ -19,7 +19,7 @@ FROM jupyter/base-notebook:latest AS notebook_setup
 
 
 FROM notebook_setup AS notebook_execute 
-ENV IPYNB_FILE="Actions/simplest.ipynb"
+ENV IPYNB_FILE="simplest.ipynb"
 ENV NB_USER="jovyan" 
 USER root 
 WORKDIR /home/jovyan/work 
