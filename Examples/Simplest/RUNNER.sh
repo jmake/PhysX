@@ -2,17 +2,17 @@
 CHECKING()
 {
   echo "[DOCKER] LIBRARIES"
-  ls -la /DUMMY/physx/install/linux/PhysX/bin/linux.clang/release/
+  ls -la /home/jovyan/work/physx/install/linux/PhysX/bin/linux.clang/release/
   
   echo "[DOCKER] INCLUDES:"
-  ls /DUMMY/physx/install/linux/PhysX/include/PxPhysicsAPI.h
-  ls /DUMMY/physx/install/linux/PxShared/include/foundation/Px.h
+  ls /home/jovyan/work/physx/install/linux/PhysX/include/PxPhysicsAPI.h
+  ls /home/jovyan/work/physx/install/linux/PxShared/include/foundation/Px.h
 }
 
 
 SIMULATION_RUN() 
 {
-  cd /home/Examples/Simplest
+  cd /home/jovyan/work/PhysX/Examples/Simplest
 
   mkdir BUILD
   cd BUILD
