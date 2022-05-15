@@ -3,6 +3,7 @@
 ##   jupyter/base-notebook @ https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
 ##
 FROM jupyter/base-notebook:latest AS notebook_setup 
+#FROM jupyter/base-notebook:latest
 
 ###/var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)
 #USER root
