@@ -1,18 +1,18 @@
 CHECKING()
 {
   echo "[DOCKER] LIBRARIES"
-  ls -la /DUMMY/physx/install/linux/PhysX/bin/linux.clang/release/
-  
+  ls -la /home/jovyan/work/physx/install/linux/PhysX/bin/linux.clang/release/
+
   echo "[DOCKER] INCLUDES:"
-  ls /DUMMY/physx/install/linux/PhysX/include/PxPhysicsAPI.h
-  ls /DUMMY/physx/install/linux/PxShared/include/foundation/Px.h
+  ls /home/jovyan/work/physx/install/linux/PhysX/include/PxPhysicsAPI.h
+  ls /home/jovyan/work/physx/install/linux/PxShared/include/foundation/Px.h
 }
 
 
 SIMULATION_RUN() 
 {
-  cd /home/Examples/Babylonjs/
-
+  cd /home/jovyan/work/PhysX/Babylonjs
+  
   mkdir BUILD
   cd BUILD
 
@@ -25,10 +25,11 @@ SIMULATION_RUN()
 
 
 VISUALIZATION_RUN()
-{
-  /home/Examples/Babylonjs/BUILD/snippetHelloWorld.x 200   
-  python3 /home/Examples/Babylonjs/physx2babylonjs.py
-
+{  
+  /home/jovyan/work/PhysX/Babylonjs/BUILD/snippetHelloWorld.x 200
+  
+  python3 /home/jovyan/work/PhysX/Babylonjs/physx2babylonjs.py
+  
   ls 
   pwd 
 }
