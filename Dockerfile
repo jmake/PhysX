@@ -2,7 +2,7 @@ FROM jmake/mybinder:last AS notebook_setup
 
 ## Just here to be able to make modifications
 FROM notebook_setup AS notebook_execute 
-ENV IPYNB_FILE="simplest.ipynb"
+ENV IPYNB_FILE="babylonjs.ipynb"
 ENV NB_USER="jovyan" 
 
 USER root 
