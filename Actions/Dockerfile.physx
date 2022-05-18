@@ -1,3 +1,6 @@
-FROM jmake/mybinder:1652646493 AS PHYSICS 
+##
+## https://hub.docker.com/repository/docker/jmake/physx41
+##
+FROM jmake/mybinder:1652202646 AS PHYSICS 
 
-#FROM jmake/mybinder:1652615015 AS PHYSICS # :). Fail in mybinder
+#FROM jmake/mybinder:1652646493 AS PHYSICS 
