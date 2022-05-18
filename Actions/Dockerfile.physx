@@ -1,6 +1,6 @@
 ##
-## https://hub.docker.com/repository/docker/jmake/physx41
+## https://hub.docker.com/repository/docker/jmake/mybinder
 ##
-FROM jmake/mybinder:1652202646 AS PHYSICS 
+FROM jmake/mybinder:last AS PHYSICS 
 
 #FROM jmake/mybinder:1652646493 AS PHYSICS 
