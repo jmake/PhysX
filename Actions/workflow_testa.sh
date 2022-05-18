@@ -35,20 +35,20 @@ DOCKER_BUILD()
 DOCKER_RUN_DETACHED()
 {
   echo "[DOCKER_RUN_DETACHED] ..."
-
-  #DOCKER_WORDIR=/DUMMY
   
   CONTAINER_ID=$(
      docker run \
         --detach \
         --rm \
         --name ${CONTAINER_NAME} \
-    --volume ${PWD}:${DOCKER_WORDIR} \
-        --workdir ${DOCKER_WORDIR} \
+--volume ${PWD}/Examples:${DOCKER_WORDIR}/PhysX \
+--workdir ${DOCKER_WORDIR} \
         --interactive ${IMAGE_NAME} \
         ${TOBEEXECUTED}
   )
-  
+#
+# --volume ${PWD}:${DOCKER_WORDIR}
+#
   docker ps -a
   echo "[DOCKER_RUN_DETACHED] DONE!"  
 }
@@ -86,7 +86,7 @@ DOCKER_COPY_FROM_CONTAINER()
 {
   echo "[DOCKER_COPY] ..."
   
-  docker cp ${CONTAINER_NAME}:${DOCKER_WORDIR}/Examples/Babylonjs/BUILD/babylon.html ./
+  docker cp ${CONTAINER_NAME}:${DOCKER_WORDIR}/PhysX/Babylonjs/BUILD/babylon.html ./
   
   echo "[DOCKER_COPY] DONE!" 
 }
@@ -122,10 +122,10 @@ DOCKER_RUN_DETACHED ##
 TOBEEXECUTED="ls -la"
 DOCKER_EXEC
 
-TOBEEXECUTED="bash Examples/Simplest/RUNNER.sh"
+TOBEEXECUTED="bash PhysX/Simplest/RUNNER.sh"
 DOCKER_EXEC
 
-TOBEEXECUTED="bash Examples/Babylonjs/RUNNER.sh"
+TOBEEXECUTED="bash PhysX/Babylonjs/RUNNER.sh"
 DOCKER_EXEC
 
 
