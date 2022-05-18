@@ -6,8 +6,6 @@ DOCKER_PUSH()
   ## Go To: 
   ##       https://hub.docker.com/repository/docker/${DUSERNAME}/${DREPOSITORY}
   ## 
-#  docker push ${IMAGE_NAME}   
-
   docker commit ${CONTAINER_NAME} ${IMAGE_NAME2}
   docker push ${IMAGE_NAME2}   
 
@@ -45,7 +43,7 @@ DOCKER_RUN_DETACHED()
         --detach \
         --rm \
         --name ${CONTAINER_NAME} \
-    --volume ${PWD}:/home \
+    --volume ${PWD}:${DOCKER_WORDIR} \
         --workdir ${DOCKER_WORDIR} \
         --interactive ${IMAGE_NAME} \
         ${TOBEEXECUTED}
@@ -88,7 +86,7 @@ DOCKER_COPY_FROM_CONTAINER()
 {
   echo "[DOCKER_COPY] ..."
   
-  docker cp ${CONTAINER_NAME}:/home/Examples/Babylonjs/BUILD/babylon.html ./
+  docker cp ${CONTAINER_NAME}:${DOCKER_WORDIR}/Examples/Babylonjs/BUILD/babylon.html ./
   
   echo "[DOCKER_COPY] DONE!" 
 }
@@ -109,7 +107,7 @@ DOCKER_STOP()
 ##
 #DVOLUME=$4        # github.workspace   
 
-DOCKER_WORDIR=/home/
+DOCKER_WORDIR=/home/jovyan/work/
 
 ## Docker ... 
 CONTAINER_NAME=mybinder_container
