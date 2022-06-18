@@ -1,0 +1,602 @@
+<!doctype html>
+<html>
+  <head>
+   <meta charset = "utf-8">
+   <title>BabylonJs - Basic Element-Creating Scene</title>
+
+   <!-- Why these lines doesnt work from the notebook ??-->
+   <!--script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script> 
+   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script> 
+   <script src="fields_new.js" type="text/javascript"></script-->
+
+   <!--script src="https://cdn.babylonjs.com/babylon.js"></script>
+   <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+   <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script-->
+
+        <!-- Babylon.js -->
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs@5.9.0/babylon.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/babylonjs-gui@5.9.0/babylon.gui.min.js"></script> 
+
+   <script type='text/javascript' src='positions.js'></script>
+   <script type='text/javascript' src='quaternions.js'></script>
+   <script type='text/javascript' src='polygons.js'></script>
+
+
+   <style>
+      html,body 
+      {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #renderCanvas
+      {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      #fpsCanvas 
+      {
+        position: absolute;
+        background-color: black;
+        text-align: center;
+        font-size: 16px;
+        color: white;
+        top: 15px;
+        left: 10px;
+        width: 60px;
+        height: 20px;
+      }     
+
+   </style>
+  </head>
+
+  <body>
+    <div id="fpsCanvas">0</div>
+
+    <canvas id = "renderCanvas"></canvas>
+
+    <script type="text/javascript">
+
+/*
+fieldsJS 
+*/
+
+console.assert(quaternions.size == positions.size); 
+
+var ntimes = GetNSteps(); 
+var nparticles = polygonids.size; 
+
+function CreatePolygons(scene) 
+{
+  Meshes = new Map();
+  
+  //for(i=0; i < polygonsids.length; i++) 
+  for(let[i,ipolygon] of polygonids) 
+  {
+    var name = `Polygon${ipolygon}`;
+    var face = faces.get(ipolygon);
+    var vertex = vertices.get(ipolygon);
+    console.log(`[CreatePolygon] name:'${name}' nfaces:${face.length}`);
+
+    const polygon = {'name':name,'vertex':vertex,'face':face};
+    mesh = BABYLON.MeshBuilder.CreatePolyhedron("h",{custom:polygon});
+    Meshes.set(ipolygon,mesh); 
+  }
+
+  console.log("[CreatePolygons] keys:", Meshes.keys()); 
+  return Meshes; 
+}
+
+
+function SetParticlePosition(particle,itime,iparticle) 
+{
+  /*
+  property = new Map();
+  property.set(itime, {id0:[x0,y0,z0,w0], id1:[x1,y1,z1,w1],..., idN:[xN,yN,zN,wN]});
+  */
+
+  ipolygon = polygonids.get(iparticle); 
+
+  // Positions
+  var position = positions.get(itime); 
+  particle.position.x = position[ipolygon][0];
+  particle.position.y = position[ipolygon][1];
+  particle.position.z = position[ipolygon][2];
+
+  // Quaternions 
+  var quaternion = quaternions.get(itime);  
+  var q = BABYLON.Quaternion.FromArray(quaternion[ipolygon]); 
+  var e = q.toEulerAngles();
+  particle.rotation.x = e.x
+  particle.rotation.y = e.y
+  particle.rotation.z = e.z
+}
+
+
+function SetParticlesPosition(SPS, itime) 
+{
+  console.log(`[SetParticlesPosition]:${itime}/${ntimes} `);
+  console.assert(itime < ntimes, "itime < ntimes"); 
+ 
+  for(let iparticle = 0; iparticle < SPS.nbParticles; iparticle++) 
+  {
+    const particle = SPS.particles[iparticle];
+    SetParticlePosition(particle,itime,iparticle); 
+  }
+};
+
+
+function ShowWorldAxis(size, scene) 
+{
+    var makeTextPlane = function(text, color, size) 
+    {
+        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 50, scene, true);
+        dynamicTexture.hasAlpha = true;
+        dynamicTexture.drawText(text, 5, 40, "bold 36px Arial", color , "transparent", true);
+        var plane = BABYLON.Mesh.CreatePlane("TextPlane", size, scene, true);
+        plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", scene);
+        plane.material.backFaceCulling = false;
+        plane.material.specularColor = new BABYLON.Color3(0, 0, 0);
+        plane.material.diffuseTexture = dynamicTexture;
+        return plane;
+    };
+    var axisX = BABYLON.Mesh.CreateLines("axisX", [ 
+    new BABYLON.Vector3(-size, 0, 0), new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, 0.05 * size, 0), 
+      new BABYLON.Vector3(size, 0, 0), new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+      ], scene);
+
+    axisX.color = new BABYLON.Color3(1, 0, 0);
+    var xChar = makeTextPlane("X", "red", size / 10);
+    xChar.position = new BABYLON.Vector3(0.9 * size, -0.05 * size, 0);
+    var axisY = BABYLON.Mesh.CreateLines("axisY", [
+        new BABYLON.Vector3(0,-size, 0), new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( -0.05 * size, size * 0.95, 0), 
+        new BABYLON.Vector3(0, size, 0), new BABYLON.Vector3( 0.05 * size, size * 0.95, 0)
+        ], scene);
+    axisY.color = new BABYLON.Color3(0, 1, 0);
+    var yChar = makeTextPlane("Y", "green", size / 10);
+    yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
+    var axisZ = BABYLON.Mesh.CreateLines("axisZ", [
+    new BABYLON.Vector3(0,0,-size), new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0 , -0.05 * size, size * 0.95),
+        new BABYLON.Vector3(0, 0, size), new BABYLON.Vector3( 0, 0.05 * size, size * 0.95)
+        ], scene);
+    axisZ.color = new BABYLON.Color3(0, 0, 1);
+    var zChar = makeTextPlane("Z", "blue", size / 10);
+    zChar.position = new BABYLON.Vector3(0, 0.05 * size, 0.9 * size);
+};
+
+    const rad2deg = rad => rad * 180.0 / Math.PI;
+    const deg2rad = deg => deg * Math.PI / 180.0;
+
+    var Rad2Deg = function( quaternion )
+    {
+      var euler_rad = quaternion.toEulerAngles().asArray();
+      var euler_deg = euler_rad.map(rad2deg);
+      return new BABYLON.Vector3().fromArray(euler_deg); 
+    }
+
+    class GetParticlesSystem 
+    {
+      _nmeshes = 0;
+      _k = 0; 
+      _iAddMeshBuilderClass = 0;
+
+      constructor(scene) 
+      {
+        this.SPS = new BABYLON.SolidParticleSystem("SPS", 
+                              scene, 
+                              {useModelMaterial:true}, //, isPickable:true}, 
+                              ); 
+        console.log("[GetParticlesSystem] "); 
+
+        this.scene = scene; 
+        this._k = 0; 
+      }
+
+
+      AddSpheres(nmeshes)
+      {
+        console.assert(arguments.length, "undefined nmeshes!!");
+        
+        this._nmeshes += nmeshes;
+
+        const m = BABYLON.MeshBuilder.CreateSphere("s", {});
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+      }
+
+      AddMeshBuilderClass(MeshBuilderClass, nMeshBuilderClass)
+      {
+        // Cube 
+        var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
+
+        var r = Math.random();
+        var g = Math.random();
+        var b = Math.random();
+
+        myMaterial.diffuseColor = new BABYLON.Color3(r, 0, b);
+        myMaterial.specularColor = new BABYLON.Color3(0, g, 0);
+        //myMaterial.emissiveColor = new BABYLON.Color3(1, 0, 0);
+        //myMaterial.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+        MeshBuilderClass.material = myMaterial; 
+        this.SPS.addShape(MeshBuilderClass, nMeshBuilderClass); // 'nmeshes' meshes
+
+        MeshBuilderClass.dispose(); //free memory
+      }      
+
+      AddCuboid(nmeshes, shadow)
+      {
+        console.assert(arguments.length, "undefined nmeshes!!");        
+        this._nmeshes += nmeshes;
+
+        // Cube 
+        var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
+        myMaterial.diffuseColor = new BABYLON.Color3(1, 0, 0);
+        myMaterial.specularColor = new BABYLON.Color3(0, 1, 0);
+        //myMaterial.emissiveColor = new BABYLON.Color3(1, 0, 0);
+        //myMaterial.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+        const m = BABYLON.MeshBuilder.CreateBox("box", {height:4,width:2,depth:2});
+        m.material = myMaterial; 
+
+        shadow.addShadowCaster(m); // does not work
+
+        // Added 
+        this.SPS.addShape(m, nmeshes); // 'nmeshes' meshes
+        m.dispose(); //free memory
+
+        console.log("[GetParticlesSystem] nmeshes:" + this._nmeshes); 
+      }
+
+
+      Create() // All the particles are displayed at the origin.
+      {
+        this.mesh = this.SPS.buildMesh(); // finally builds and displays the SPS mesh
+        console.log("[GetParticlesSystem] "); 
+      }
+
+
+      Initialize() // Initiate particles function
+      {
+        this.SPS.initParticles = () => 
+        {
+          SetParticlesPosition(this.SPS, 0); 
+        }
+        this.SPS.initParticles();
+        this.SPS.setParticles();
+        console.log("[GetParticlesSystem] "); 
+      }
+
+      DrawOnEachRenderCycle() 
+      {
+        var itime = -1; this._k;;
+        //var position = positions.get(itime); 
+        
+        this.SPS.updateParticle = (p) => 
+        {
+          itime = this._k; 
+          console.assert(itime < ntimes, "itime < ntimes"); 
+          SetParticlePosition(p,itime,p.id); 
+        }    
+        console.log("[GetParticlesSystem] "); 
+
+        this.scene.onBeforeRenderObservable.add(() => 
+        {
+          this.SPS.setParticles();
+          if(this._k < ntimes-1){this._k += 1;}
+          else {this._k = 0};              
+          //console.log("Rendering:" + this._k); 
+        })
+        
+        console.log("[GetParticlesSystem] "); 
+      }
+
+    }
+
+
+    var GetCamera = function(scene, canvas) 
+    {
+      var pos1 = new BABYLON.Vector3(50,25,50);
+      var view1 = new BABYLON.Vector3(0,12.5,0); 
+
+      var c = new BABYLON.ArcRotateCamera("camera1",0,0,0, view1, scene);
+      c.setPosition(pos1);
+      c.attachControl(canvas, true); // Controled by mouse movement;
+      return c; 
+    } 
+
+
+    var GetCameraB = function(scene, canvas) 
+    {
+      var fpsCamera = GetCamera(scene, canvas); 
+      fpsCamera.viewport = new BABYLON.Viewport(0, 0, 1, 1);
+      scene.activeCameras.push(fpsCamera);
+      
+      var camera2 = new BABYLON.ArcRotateCamera("camera2", 0, 0, 0, new BABYLON.Vector3(0,25,0), scene);
+      camera2.setPosition(new BABYLON.Vector3(100,0,100));
+      camera2.viewport = new BABYLON.Viewport(0.8,0.8,0.2,0.2);
+      scene.activeCameras.push(camera2);
+
+      return 
+    }  
+
+    var GetCameraC = function(scene, canvas) 
+    {
+      //var camera = new BABYLON.UniversalCamera("cameraC", BABYLON.Vector3.Zero(), scene);
+      var camera = new BABYLON.FreeCamera("cameraC", BABYLON.Vector3.Zero(), scene);
+      camera.position = new BABYLON.Vector3(0,10.0,75);
+      camera.setTarget( new BABYLON.Vector3(0,25.0,0) );
+      camera.attachControl(canvas, true);
+      return camera; 
+    }
+
+    var GetLight = function(scene) 
+    {  
+      var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+      light.intensity = 0.85;
+      light.specular = new BABYLON.Color3(0.95, 0.95, 0.81);
+      return light; 
+    }
+    
+
+    var GetLightB = function(scene) 
+    {  
+      //var light = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(-40, 40, -40), new BABYLON.Vector3(1, -1, 1), Math.PI / 5, 30, Scene);
+      var light = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(0,1,0), scene);
+      light.intensity = 2;
+      light.specular = new BABYLON.Color3(0.95, 0.95, 0.81);
+      return light; 
+    }
+
+
+    var GetGround = function() 
+    {
+      var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
+      myMaterial.diffuseColor = new BABYLON.Color3(0,0,0.1);
+      //myMaterial.specularColor = new BABYLON.Color3(0,0,1);
+      myMaterial.emissiveColor = new BABYLON.Color3(0.1,0.1,0.1);
+      //myMaterial.ambientColor = new BABYLON.Color3(0.23, 0.98, 0.53);
+
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 500, height: 500});
+      ground.material = myMaterial; 
+      ground.position.y = 0.0;
+      ground.receiveShadows = true;
+      ground.isVisible = false;
+
+      ground.checkCollisions = true;
+      return ground; 
+    }
+
+
+    var GetSimplestEngine = function(canvas) 
+    { 
+      return new BABYLON.Engine(canvas, true);
+    }
+
+
+    var GetDefaultEngine = function(canvas) 
+    { 
+      return new BABYLON.Engine(canvas, 
+                   true, 
+                   {preserveDrawingBuffer:true,stencil:true,disableWebGL2Support:false}
+                   ); 
+    };
+
+
+    var GetShadows = function(light)
+    {
+      var shadowGenerator = new BABYLON.ShadowGenerator(3072, light);
+      shadowGenerator.usePercentageCloserFiltering = true;
+      return shadowGenerator; 
+    }
+
+    var Canvas = document.getElementById("renderCanvas");
+    var Engine = GetDefaultEngine(Canvas); 
+    var Scene = new BABYLON.Scene(Engine);
+
+    var Light = GetLight(Scene); 
+    var Shadow = GetShadows( GetLightB(Scene) ); 
+    //var Camera = GetCamera(Scene, Canvas); 
+    //GetCameraB(Scene, Canvas); 
+    var Camera = GetCameraC(Scene, Canvas);
+
+    var Ground = GetGround(); 
+
+    // Collisions 
+    Scene.collisionsEnabled = true;
+
+    Ground.checkCollisions = true;
+
+    Camera.checkCollisions = true;
+    Camera.applyGravity = true;
+    Camera.ellipsoid = new BABYLON.Vector3(1,1,1);
+
+    Scene.clearColor = BABYLON.Color3.Black;
+
+
+    // Polygons 
+    var Meshes = CreatePolygons(Scene); 
+
+    // Particle System    
+    var Ps1 = new GetParticlesSystem(Scene);
+    //Ps1.AddCuboid(nparticles,Shadow);
+
+    for(let[k,v] of Meshes) Ps1.AddMeshBuilderClass(Meshes.get(k),1);
+
+    Ps1.Create();
+    Ps1.Initialize(); 
+    Ps1.DrawOnEachRenderCycle(); 
+    
+//    Scene.shadowsEnabled = true;
+
+    deltaTime = Engine.getDeltaTime();
+/*
+    if (BABYLON.VideoRecorder.IsSupported(Engine)) 
+    {
+     var recorder = new BABYLON.VideoRecorder(Engine);
+     recorder.startRecording(); 
+    }
+*/
+
+ShowWorldAxis(20,Scene); 
+
+
+
+
+Scene.onBeforeRenderObservable.add(()=>
+{
+  deltaTime = Engine.getDeltaTime();
+  var camera = Scene.activeCamera
+}); 
+
+
+// GUI 
+function AddTextblock(atexture) 
+{
+  var textblock = new BABYLON.GUI.TextBlock();
+  textblock.text = "[spicytechs]";
+  textblock.fontSize = 15;
+  textblock.top = 200;
+  textblock.color = "white";
+
+  atexture.addControl(textblock);
+
+  setTimeout(() => {textblock.text=" "}, 5000);
+
+  return textblock; 
+}
+
+function PrintPointerInteractions(scene, textblock)
+{
+  var PointerEvents = new Map;
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERDOWN, "POINTER DOWN");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERUP, "POINTER UP");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERMOVE,"POINTER MOVE");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERWHEEL, "POINTER WHEEL");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERPICK, "POINTER PICK");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERTAP, "POINTER TAP");
+  PointerEvents.set(BABYLON.PointerEventTypes.POINTERDOUBLETAP, "POINTER DOUBLE-TAP");
+
+  scene.onPointerObservable.add((e) => 
+  {
+    console.log("PrintPointerInteractions", PointerEvents.get(e.type) );
+
+    textblock.text = "["+ PointerEvents.get(e.type) +"]"; 
+    setTimeout(()=>{textblock.text = ""}, 3000);
+  }); 
+}
+
+var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+var textblock1 = AddTextblock(advancedTexture); 
+PrintPointerInteractions(Scene,textblock1); 
+advancedTexture.unRegisterClipboardEvents();
+
+
+var OnPointerDown = function(event,pick,engine) 
+{
+  if(event.button == 0) 
+  { 
+    engine.enterPointerlock();
+    //Scene.activeCamera = Camera2;     
+    console.log("enterPointerlock");
+  } 
+}
+Scene.onPointerDown = function(e,p){OnPointerDown(e,p,Engine);};  
+
+
+function zoomWheel(p, e, camera) 
+{
+    const event = p.event;
+    event.preventDefault();
+    let wheelDelta = 0;
+    if (event.wheelDelta) {
+        wheelDelta = event.wheelDelta;
+    } else {
+        wheelDelta = -(event.deltaY || event.detail) * 60;
+    }
+    var delta = wheelDelta / (camera.wheelPrecision * 10);
+    return delta;
+}
+
+function PrintPointerInteractions2(scene, textblock)
+{
+  // SEE: https://playground.babylonjs.com/#0Y0ALJ#12
+  scene.onPointerObservable.add((p,e) => 
+  {
+    const event = p.event;
+    event.preventDefault();
+
+    let wheelDelta = 0;
+    if (event.wheelDelta) 
+    {
+        wheelDelta = event.wheelDelta;
+    } else 
+    {
+        wheelDelta = -(event.deltaY || event.detail) * 60;
+    }   
+    console.log("wheelDelta", wheelDelta);  
+
+    // SEE: https://www.babylonjs-playground.com/#IA7LXQ#2
+    var camera = Scene.activeCamera
+    if(wheelDelta > 0)
+    {
+      camera.position.addInPlace(camera.getDirection( BABYLON.Vector3.Forward().scaleInPlace(1.5) ));
+    }
+    else if(wheelDelta < 0)
+    {
+      camera.position.addInPlace(camera.getDirection( BABYLON.Vector3.Backward().scaleInPlace(1.5) ));
+    }
+
+    setTimeout(()=>{textblock.text = ""}, 3000);
+  }); 
+}
+PrintPointerInteractions2(Scene,textblock1); 
+
+// FPS 
+var animate = function() 
+{
+  document.getElementById("fpsCanvas").innerHTML = Engine.getFps().toFixed() + " fps"; 
+};
+Scene.registerBeforeRender(animate);
+
+
+var DeviceOrientation  = function(textblock) 
+{
+  window.addEventListener("deviceorientation", function(event) 
+  {
+						
+		var orientation = window.orientation;
+		console.log(orientation);
+
+		var alphaGrad = event.alpha;// x rotation
+		var betaGrad = event.beta;// hory rotation
+		var gamaGrad = event.gamma;// y rotation
+		var absGrad = event.absolute;// ???
+						
+		var alphaRad = alphaGrad * (Math.PI / 180);
+		var betaRad = betaGrad * (Math.PI / 180);
+		var gamaRad = gamaGrad * (Math.PI / 180);
+						
+		camera.alpha = alphaRad;
+		camera.beta = betaRad;
+
+    setTimeout(()=>{textblock.text = `[DeviceOrientation] alphaRad:${alphaRad} betaRad:${betaRad}`}, 3000);
+
+	}, true);
+
+}
+
+DeviceOrientation(textblock1); 
+
+Engine.runRenderLoop(function(){Scene.render();});
+
+   </script>
+  </body>
+</html>
