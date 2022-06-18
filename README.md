@@ -6,4 +6,4 @@
 ![DecafPV560](https://github.com/jmake/PhysX/actions/workflows/testa.yml/badge.svg)
 
 
-![SegmentLocal](cubes.gif "segment")
+![SegmentLocal](spicytechs3.gif "segment")
